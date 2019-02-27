@@ -3,7 +3,7 @@ angular.module('app', []).controller('ctrl', function ($scope) {
 	$scope.searchChanged = function () {
 		// console.log('changed', $scope.seach);
 	}
-}).directive('contenteditable', function () {
+}).directive('contenteditable', ['$http', function($http) {
 	return {
 		require: 'ngModel',
 		restrict: 'A',
@@ -24,10 +24,21 @@ angular.module('app', []).controller('ctrl', function ($scope) {
 				setCaret.call(this);
 			}
 
-			var items = ["Hello", "World", "Please", "Work", "Augmedix", "Make", "Believe"];
-			function getWord() {
-				var item = items[Math.floor(Math.random() * items.length)];
-				return item;
+			function getLastWord(text) {
+				var cleanText = text.trim();
+				var splitted = cleanText.split(" ");
+				var word = splitted[splitted.length - 1];
+				console.log(word);
+				return word;
+			}
+
+			function provideSuggestion() {
+				$http.get(`http://127.0.0.1:5000/sentence/${getLastWord(this.innerText)}`).then(function(data){
+					pasteHtmlAtCaret(`<span style="color:white;">${data.data}</span>`, false);
+					scope.dynamic_word_added = true;
+				}, function(){
+					console.log("error")
+				});
 			}
 
 			function updateViewValue(evt) {
@@ -42,8 +53,8 @@ angular.module('app', []).controller('ctrl', function ($scope) {
 					scope.dynamic_word_added = false;
 				}
 				else if (evt.keyCode == 32) {
-					pasteHtmlAtCaret(`<span style="color:white;">${getWord()}&nbsp;</span>`, false);
-					scope.dynamic_word_added = true;
+					provideSuggestion.call(this)
+					
 				} else {
 					if (scope.dynamic_word_added) {
 						let text = removeChild.call(this, true);
@@ -117,5 +128,5 @@ angular.module('app', []).controller('ctrl', function ($scope) {
 
 		}
 	}
-});
+}]);
 
