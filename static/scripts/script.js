@@ -1,7 +1,7 @@
 angular.module('app', []).controller('ctrl', function ($scope) {
 	$scope.searchText = "Type here";
 	$scope.searchChanged = function () {
-		// console.log('changed', $scope.seach);
+		// console.log('changed => ' + $scope.searchText);
 	}
 }).directive('contenteditable', ['$http', function($http) {
 	return {
@@ -28,13 +28,12 @@ angular.module('app', []).controller('ctrl', function ($scope) {
 				var cleanText = text.trim();
 				var splitted = cleanText.split(" ");
 				var word = splitted[splitted.length - 1];
-				console.log(word);
 				return word;
 			}
 
 			function provideSuggestion() {
 				$http.get(`http://127.0.0.1:5000/sentence/${getLastWord(this.innerText)}`).then(function(data){
-					pasteHtmlAtCaret(`<span style="color:white;">${data.data}</span>`, false);
+					pasteHtmlAtCaret(`<span style="color:gray;">${data.data}</span>`, false);
 					scope.dynamic_word_added = true;
 				}, function(){
 					console.log("error")
@@ -53,6 +52,11 @@ angular.module('app', []).controller('ctrl', function ($scope) {
 					scope.dynamic_word_added = false;
 				}
 				else if (evt.keyCode == 32) {
+					if (scope.dynamic_word_added) {
+						let text = removeChild.call(this, true);
+						updateEditableValue.call(this, text);
+						scope.dynamic_word_added = false;
+					}
 					provideSuggestion.call(this)
 					
 				} else {
