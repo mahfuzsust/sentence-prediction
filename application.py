@@ -1,20 +1,23 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 from word_predictor import getWord, getSuggestedSentence
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 CORS(app)
 
 @app.route('/')
 def hello():
-    return 'Hello, World!'
+    return render_template('index.html')
 
-@app.route('/word/<searchText>')
-def getSuggestionWord():
-    return getWordList()
+# @app.route('/word/<searchText>')
+# def getSuggestionWord():
+#     return getWordList()
 
 
 @app.route('/sentence/<searchText>')
 def getPredictedSentence(searchText):
     sentence = getSuggestedSentence(searchText)
     return sentence
+
+if __name__ == '__main__':
+    app.run()
