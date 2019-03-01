@@ -1,38 +1,17 @@
-import re
 import random
-
-FILE = "data_file"
+import pickle
+import json
+from ngram import setNgram, getNgram, FILE, NGRAM_FILE
 
 def get_file_content(filename):
-    with open(f'./data/{filename}.txt', 'r') as f:
-        txt = f.read()
-    return txt
+    with open(f'./data/{filename}.txt', 'rb') as f:
+        my_list = pickle.load(f)
+        return my_list
 
 def write_file_content(filename, content):
     with open(f'./data/{filename}.txt', 'a+') as f:
         f.write(content)
         f.write("\n")
-
-def get_data_words():
-    content = get_file_content('data.txt')
-    # content = get_file_content('pride_and_prejudice.txt')
-    # content = content + get_file_content('hucleberry_finn.txt')
-    words = re.compile("([\w][\w]*'?\w?)").findall(content.lower())
-    words = list(filter(None, words))
-    return words
-
-def generateNgram(words, n=1):
-    assert n > 0 and n < 100
-    gram = dict()
-    for i in range(len(words)-(n-1)):
-        key = tuple(words[i:i+n])
-        if key in gram:
-            gram[key] += 1
-        else:
-            gram[key] = 1
-    
-    gram = sorted(gram.items(), key=lambda x: x[1], reverse=True)
-    return gram
 
 def get_highest_counter(choices):
 	maximum = 0
@@ -72,6 +51,22 @@ def getNGramSentenceRandom(gram, word, n = 50):
         word = weighted_choice(choices)[1]
     return arr
 
+
+def getNgramSequence(gram, word):
+    arr = []
+    maximum = -1
+    for item in gram:
+        if item[0][0] == word and item[1] >= maximum:
+            arr.append(item)
+            if item[1] > maximum:
+                maximum = item[1]
+    
+    print(arr)
+    if len(arr) > 0:
+        item = random.choice(arr)
+        return list(item[0])
+    return []
+
 def getNGramSentence(gram, word, n = 50):
     arr = []
     for i in range(n):
@@ -83,18 +78,20 @@ def getNGramSentence(gram, word, n = 50):
         word = get_most_used_word(choices, get_highest_counter(choices))
     return arr
 
-def getWord():
-    pass
+def getNgramFromFile():
+    ngram = get_file_content(NGRAM_FILE)
+    return ngram
 
 def getSuggestedSentence(searchText):
-    ngram = generateNgram(get_data_words(), n=3)
-    word_sequence = getNGramSentence(ngram, searchText.lower(), n=3)
+    ngram = get_file_content(NGRAM_FILE)
+    word_sequence = getNgramSequence(ngram, searchText.lower())
     sentence = ' '.join(word_sequence[1:])
     return sentence
 
 def save_text(text):
     write_file_content(FILE, text)
+    setNgram()
 
 if __name__ == "__main__":
-    write_file_content(FILE, "hello world")
-    # getSuggestedSentence("hello")
+    setNgram()
+    pass

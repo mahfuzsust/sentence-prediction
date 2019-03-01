@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from flask_cors import CORS
-from word_predictor import getWord, getSuggestedSentence, save_text
+from word_predictor import getSuggestedSentence, save_text
+from ngram import setNgram
 
 app = Flask(__name__, static_url_path='/static')
 CORS(app)
@@ -28,3 +29,4 @@ def saveData():
 
 if __name__ == '__main__':
     app.run()
+    setNgram()

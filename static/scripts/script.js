@@ -109,6 +109,7 @@ app.directive('contenteditable', ['$http', function ($http) {
 							updateEditableValue.call(this, text);
 							scope.dynamic_word_added = false;
 						}
+						ngModel.$setViewValue(this.innerText);
 						scope.started_writting = true;
 						break;
 				}
