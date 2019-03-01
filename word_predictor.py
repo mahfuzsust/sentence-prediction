@@ -1,11 +1,17 @@
 import re
-# import operator
 import random
 
+FILE = "data_file"
+
 def get_file_content(filename):
-    with open(f'./data/{filename}', 'r') as f:
+    with open(f'./data/{filename}.txt', 'r') as f:
         txt = f.read()
     return txt
+
+def write_file_content(filename, content):
+    with open(f'./data/{filename}.txt', 'a+') as f:
+        f.write(content)
+        f.write("\n")
 
 def get_data_words():
     content = get_file_content('pride_and_prejudice.txt')
@@ -85,6 +91,9 @@ def getSuggestedSentence(searchText):
     sentence = ' '.join(word_sequence[1:])
     return sentence
 
-if __name__ == "__main__":
+def save_text(text):
+    write_file_content(FILE, text)
 
-    getSuggestedSentence("hello")
+if __name__ == "__main__":
+    write_file_content(FILE, "hello world")
+    # getSuggestedSentence("hello")

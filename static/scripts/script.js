@@ -6,11 +6,19 @@ const LEFT_KEY = 37;
 const BACKSPACE_KEY = 8;
 
 
-app.controller('ctrl', ['$scope', function ($scope) {
+app.controller('ctrl', ['$scope', '$http', function ($scope, $http) {
 	$scope.searchText = "Type here";
 	$scope.abc = "Type here";
 	$scope.searchChanged = function () {
 		// console.log('changed => ' + $scope.searchText);
+	}
+	$scope.save = function () {
+		console.log('save clicked');
+		$http.post('/save', $scope.searchText).then(function (data) {
+			console.log(data);
+		}, function () {
+			console.log("error")
+		});
 	}
 }]);
 
