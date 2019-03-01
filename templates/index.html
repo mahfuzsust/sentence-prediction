@@ -1,4 +1,4 @@
-<html>
+<html ng-app="app">
 
 <head>
   <link rel="stylesheet" href="../static/stylesheet/style.css">
@@ -7,12 +7,10 @@
 </head>
 
 <body>
-  <div ng-app="app" ng-controller="ctrl">
+  <div ng-controller="ctrl">
     <div style="margin-top: 70px;">
-      <div class="content-right">
-        <div style="margin-left: 10px">{{searchText}} ggggg</div>
-      </div>
       <div class="content-left">
+        <span>{{searchText}}</span>
         <div id="test" class="input-box" type="search" ng-model="searchText" ng-change="searchChanged()"
           contenteditable="true">
         </div>

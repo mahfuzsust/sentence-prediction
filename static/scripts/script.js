@@ -1,9 +1,14 @@
-angular.module('app', []).controller('ctrl', function ($scope) {
+var app = angular.module('app', []); 
+
+app.controller('ctrl', ['$scope', function ($scope) {
 	$scope.searchText = "Type here";
+	$scope.abc = "Type here";
 	$scope.searchChanged = function () {
 		// console.log('changed => ' + $scope.searchText);
 	}
-}).directive('contenteditable', ['$http', function($http) {
+}]);
+
+app.directive('contenteditable', ['$http', function ($http) {
 	return {
 		require: 'ngModel',
 		restrict: 'A',
@@ -12,10 +17,13 @@ angular.module('app', []).controller('ctrl', function ($scope) {
 			function removeChild(shouldAdd) {
 				let text = "";
 				let childNode = this.getElementsByTagName("span")[0];
-				if (shouldAdd) {
-					text += childNode.innerText;
+				
+				if(childNode){
+					if (shouldAdd) {
+						text += childNode.innerText;
+					}
+					this.removeChild(childNode);
 				}
-				this.removeChild(childNode);
 				return text;
 			}
 
@@ -33,51 +41,87 @@ angular.module('app', []).controller('ctrl', function ($scope) {
 				return word;
 			}
 
+			function showSuggestion(text) {
+				pasteHtmlAtCaret(`<span style="color:gray;">${text}</span>`, false);
+				scope.dynamic_word_added = true;
+			}
+
 			function provideSuggestion() {
-				$http.get(`/sentence/${getLastWord(this.innerText)}`).then(function(data){
-					pasteHtmlAtCaret(`<span style="color:gray;">${data.data}</span>`, false);
-					scope.dynamic_word_added = true;
-				}, function(){
+				$http.get(`/sentence/${getLastWord(this.innerText)}`).then(function (data) {
+					if (data.data && !scope.started_writting) {
+						scope.suggested_word = data.data;
+						showSuggestion(scope.suggested_word);
+					}
+				}, function () {
 					console.log("error")
 				});
 			}
 
+			function canShowSuggestion(currentText) {
+				if(!scope.suggested_word || !currentText) 
+					return false;
+				return scope.suggested_word.startsWith(currentText);
+			}
+
 			function updateViewValue(evt) {
-				if (evt.keyCode == 37 && scope.dynamic_word_added) {
-					removeChild.call(this, false);
-					scope.dynamic_word_added = false;
-				}
-				else if (evt.keyCode == 39 && scope.dynamic_word_added) {
-					let text = removeChild.call(this, true);
-					updateEditableValue.call(this, text);
-					ngModel.$setViewValue(this.innerText);
-					scope.dynamic_word_added = false;
-				}
-				else if (evt.keyCode == 32) {
-					if (scope.dynamic_word_added) {
+				switch (evt.keyCode) {
+					case 37:
+					case 8:
+						if (scope.dynamic_word_added) {
+							removeChild.call(this, false);
+							scope.dynamic_word_added = false;
+						}
+						break;
+					case 39:
 						let text = removeChild.call(this, true);
 						updateEditableValue.call(this, text);
+						ngModel.$setViewValue(this.innerText);
 						scope.dynamic_word_added = false;
-					}
-					provideSuggestion.call(this)
-					
-				} else {
-					if (scope.dynamic_word_added) {
-						let text = removeChild.call(this, true);
-						updateEditableValue.call(this, text);
-						scope.dynamic_word_added = false;
-					}
-					ngModel.$setViewValue(this.innerText);
+						break;
+					case 32:
+						if (scope.dynamic_word_added) {
+							let text = removeChild.call(this, true);
+							updateEditableValue.call(this, text);
+							scope.dynamic_word_added = false;
+						} else if (canShowSuggestion(evt.key)) {
+							removeChild.call(this, false);
+							updateEditableValue.call(this, evt.key);
+							scope.suggested_word = scope.suggested_word.replace(evt.key, "");
+							showSuggestion(scope.suggested_word);
+							scope.dynamic_word_added = false;
+						} else {
+							provideSuggestion.call(this)
+						}
+						scope.started_writting = false;
+						break;
+					default:
+						// if (scope.dynamic_word_added) {
+						// 	let text = removeChild.call(this, true);
+						// 	updateEditableValue.call(this, text);
+						// 	scope.dynamic_word_added = false;
+						// }
+						if (canShowSuggestion(evt.key)) {
+							removeChild.call(this, false);
+							updateEditableValue.call(this, evt.key);
+							scope.suggested_word = scope.suggested_word.replace(evt.key, "");
+							showSuggestion(scope.suggested_word);
+							scope.dynamic_word_added = false;
+						} else {
+							removeChild.call(this, false);
+							scope.dynamic_word_added = false;
+							updateEditableValue.call(this, evt.key);
+							ngModel.$setViewValue(this.innerText + evt.key);
+						}
+						scope.started_writting = true;
+
+						break;
 				}
 			}
 
-			//Or bind it to any other events
 			elm.on('keyup', updateViewValue);
-
 			scope.$on('$destroy', function () {
 				elm.off('keyup', updateViewValue);
 			});
-
 			ngModel.$render = function () {
 				elm.html(ngModel.$viewValue);
 			}

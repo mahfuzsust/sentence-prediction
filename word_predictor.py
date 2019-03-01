@@ -68,7 +68,6 @@ def getNGramSentenceRandom(gram, word, n = 50):
 def getNGramSentence(gram, word, n = 50):
     arr = []
     for i in range(n):
-        print(word)
         arr.append(word)
         choices = [element for element in gram if element[0][0] == word]
         if not choices:
