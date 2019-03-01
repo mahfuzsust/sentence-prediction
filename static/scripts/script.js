@@ -26,13 +26,15 @@ angular.module('app', []).controller('ctrl', function ($scope) {
 
 			function getLastWord(text) {
 				var cleanText = text.trim();
-				var splitted = cleanText.split(" ");
+				var re = /\w+/g;
+				var splitted = cleanText.match(re);
 				var word = splitted[splitted.length - 1];
+				console.log(word);
 				return word;
 			}
 
 			function provideSuggestion() {
-				$http.get(`http://127.0.0.1:5000/sentence/${getLastWord(this.innerText)}`).then(function(data){
+				$http.get(`/sentence/${getLastWord(this.innerText)}`).then(function(data){
 					pasteHtmlAtCaret(`<span style="color:gray;">${data.data}</span>`, false);
 					scope.dynamic_word_added = true;
 				}, function(){

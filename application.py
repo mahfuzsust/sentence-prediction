@@ -9,11 +9,6 @@ CORS(app)
 def hello():
     return render_template('index.html')
 
-# @app.route('/word/<searchText>')
-# def getSuggestionWord():
-#     return getWordList()
-
-
 @app.route('/sentence/<searchText>')
 def getPredictedSentence(searchText):
     sentence = getSuggestedSentence(searchText)

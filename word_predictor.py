@@ -10,7 +10,7 @@ def get_file_content(filename):
 def get_data_words():
     content = get_file_content('pride_and_prejudice.txt')
     content = content + get_file_content('hucleberry_finn.txt')
-    words = re.split('[^A-Za-z]+', content.lower())
+    words = re.compile("([\w][\w]*'?\w?)").findall(content.lower())
     words = list(filter(None, words))
     return words
 
@@ -81,8 +81,8 @@ def getWord():
     pass
 
 def getSuggestedSentence(searchText):
-    ngram = generateNgram(get_data_words(), n=2)
-    word_sequence = getNGramSentence(ngram, searchText.lower(), 2)
+    ngram = generateNgram(get_data_words(), n=3)
+    word_sequence = getNGramSentence(ngram, searchText.lower(), n=3)
     sentence = ' '.join(word_sequence[1:])
     return sentence
 
