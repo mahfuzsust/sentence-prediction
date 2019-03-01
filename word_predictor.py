@@ -14,8 +14,9 @@ def write_file_content(filename, content):
         f.write("\n")
 
 def get_data_words():
-    content = get_file_content('pride_and_prejudice.txt')
-    content = content + get_file_content('hucleberry_finn.txt')
+    content = get_file_content('data.txt')
+    # content = get_file_content('pride_and_prejudice.txt')
+    # content = content + get_file_content('hucleberry_finn.txt')
     words = re.compile("([\w][\w]*'?\w?)").findall(content.lower())
     words = list(filter(None, words))
     return words

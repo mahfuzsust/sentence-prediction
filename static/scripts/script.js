@@ -13,7 +13,6 @@ app.controller('ctrl', ['$scope', '$http', function ($scope, $http) {
 		// console.log('changed => ' + $scope.searchText);
 	}
 	$scope.save = function () {
-		console.log('save clicked');
 		$http.post('/save', $scope.searchText).then(function (data) {
 			console.log(data);
 		}, function () {
@@ -77,7 +76,6 @@ app.directive('contenteditable', ['$http', function ($http) {
 			}
 
 			function updateViewValue(evt) {
-				console.log(evt.keyCode)
 				switch (evt.keyCode) {
 					case BACKSPACE_KEY:
 					case LEFT_KEY:
