@@ -1,12 +1,10 @@
 .input-box {
     min-height: 400px;
-}
-.content-right {
-    float: right;
-    width: 50%;
+    border: 1px lightgray solid;
 }
 .content-left {
     float: left;
-    width: 50%;
+    width: calc(100% - 50px);
     position: fixed;
+    margin-left: 10px;
 }

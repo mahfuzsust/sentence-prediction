@@ -9,6 +9,11 @@ CORS(app)
 def hello():
     return render_template('index.html')
 
+
+@app.route('/favicon.ico')
+def staticdd():
+    return app.send_static_file('favicon.ico')
+
 @app.route('/sentence/<searchText>')
 def getPredictedSentence(searchText):
     sentence = getSuggestedSentence(searchText)
