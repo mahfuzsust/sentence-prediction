@@ -1,5 +1,11 @@
 var app = angular.module('app', []); 
 
+const RIGHT_KEY = 39;
+const SPACE_KEY = 32;
+const LEFT_KEY = 37;
+const BACKSPACE_KEY = 8;
+
+
 app.controller('ctrl', ['$scope', function ($scope) {
 	$scope.searchText = "Type here";
 	$scope.abc = "Type here";
@@ -37,7 +43,6 @@ app.directive('contenteditable', ['$http', function ($http) {
 				var re = /\w+/g;
 				var splitted = cleanText.match(re);
 				var word = splitted[splitted.length - 1];
-				console.log(word);
 				return word;
 			}
 
@@ -64,56 +69,41 @@ app.directive('contenteditable', ['$http', function ($http) {
 			}
 
 			function updateViewValue(evt) {
+				console.log(evt.keyCode)
 				switch (evt.keyCode) {
-					case 37:
-					case 8:
+					case BACKSPACE_KEY:
+					case LEFT_KEY:
 						if (scope.dynamic_word_added) {
 							removeChild.call(this, false);
 							scope.dynamic_word_added = false;
 						}
 						break;
-					case 39:
+					case RIGHT_KEY:
 						let text = removeChild.call(this, true);
 						updateEditableValue.call(this, text);
 						ngModel.$setViewValue(this.innerText);
 						scope.dynamic_word_added = false;
 						break;
-					case 32:
-						if (scope.dynamic_word_added) {
+					case SPACE_KEY:
+						if (scope.started_writting && scope.dynamic_word_added) {
+							removeChild.call(this, false);
+							scope.dynamic_word_added = false;
+						} else if (scope.dynamic_word_added) {
 							let text = removeChild.call(this, true);
 							updateEditableValue.call(this, text);
 							scope.dynamic_word_added = false;
-						} else if (canShowSuggestion(evt.key)) {
-							removeChild.call(this, false);
-							updateEditableValue.call(this, evt.key);
-							scope.suggested_word = scope.suggested_word.replace(evt.key, "");
-							showSuggestion(scope.suggested_word);
-							scope.dynamic_word_added = false;
 						} else {
-							provideSuggestion.call(this)
+							provideSuggestion.call(this);
 						}
 						scope.started_writting = false;
 						break;
 					default:
-						// if (scope.dynamic_word_added) {
-						// 	let text = removeChild.call(this, true);
-						// 	updateEditableValue.call(this, text);
-						// 	scope.dynamic_word_added = false;
-						// }
-						if (canShowSuggestion(evt.key)) {
-							removeChild.call(this, false);
-							updateEditableValue.call(this, evt.key);
-							scope.suggested_word = scope.suggested_word.replace(evt.key, "");
-							showSuggestion(scope.suggested_word);
+						if (scope.dynamic_word_added) {
+							let text = removeChild.call(this, true);
+							updateEditableValue.call(this, text);
 							scope.dynamic_word_added = false;
-						} else {
-							removeChild.call(this, false);
-							scope.dynamic_word_added = false;
-							updateEditableValue.call(this, evt.key);
-							ngModel.$setViewValue(this.innerText + evt.key);
 						}
 						scope.started_writting = true;
-
 						break;
 				}
 			}
@@ -175,7 +165,6 @@ app.directive('contenteditable', ['$http', function ($http) {
 					range.select();
 				}
 			}
-
 		}
 	}
 }]);
